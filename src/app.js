@@ -20,6 +20,12 @@ const userSchema = joi.object({
   name: joi.string().required()
 })
 
+const messageSchema = joi.object({
+  to: joi.string().required(),
+  text: joi.string().required(),
+  type: joi.string().valid("message").valid("private_message")
+})
+
 try {
     await mongoClient.connect()
     db = mongoClient.db()
@@ -31,16 +37,20 @@ server.post("/participants", async (request, response) => {
   const participant = request.body
   const validation = userSchema.validate(participant, { abortEarly: false }) //validacao
   const time = Date.now();
-   if(validation.error) {
-      const errors = validation.error.details.map((detail) => detail.message);
-      return response.sendStatus(422).send(errors)}
+  const participantPost = {
+    name: participant.name,
+    lastStatus: time
+  }
+  if(validation.error) {
+    const errors = validation.error.details.map((detail) => detail.message);
+    return response.sendStatus(422).send(errors)}
 
   try {
     const nameInUse = await db.collection("participants").findOne(participant) //procurar nome igual
     if(nameInUse){
       return response.sendStatus(409)
     }
-    await db.collection("participants").insertOne({...participant, lastStatus: time })
+    await db.collection("participants").insertOne(participantPost)
     await db.collection("messages").insertOne({
       from:participant.name,
       to: "todos",
@@ -67,9 +77,52 @@ server.get("/participants", async (request, response) => {
     }   
 })
 
-server.get("/messages"), async (request, response) => {
-    
+server.post("/messages", async (request, response) => {
+  const { to, text, type } = request.body
+  const { user } = request.headers
+  const validation = messageSchema.validate(request.body,{abortEarly:true})
+  if (validation.error){
+    response.sendStatus(422)
 }
+  try {
+    const validateUser = await db.collection("participants").findOne({name:user})
+    if(!validateUser){
+      response.sendStatus(422)
+    }
+
+    await db.collection("messages").insertOne({
+      from: user,
+      to,
+      text,
+      type,
+      time: dayjs(Date.now()).format("HH:mm:ss")
+    })
+    return response.sendStatus(201)
+  } catch (error) {
+    response.sendStatus(500)
+  }
+
+})
+
+
+server.get("/messages", async (request, response) => {
+  const { limit } = request.query
+  const { user } = request.headers 
+  
+  try {
+    const messages = await db.collection("messages").find({ $or:[{from: user },{to: user},{to:"todos"},{type:"status"},{type:"message"}]}).toArray()
+    if(!limit){
+      response.send(messages)
+      }
+    else{
+      const msg = messages.slice(-limit)
+      response.send(msg)
+    }
+  } catch (error) {
+    response.send(error)
+      
+  }
+})
 
 server.listen(PORT, () => {
     console.log(`server on port ${PORT}`)
