@@ -59,8 +59,8 @@ server.post("/participants", async (request, response) => {
 
 server.get("/participants", async (request, response) => {
     try { 
-        const participants = await db.collection("participants") //.find().toArray()
-        
+      const participants = await db.collection("participants").find().toArray()
+      return response.send(participants)
     } catch (error) {
         res.status(500).send("Deu um erro no servidor de banco de dados")
 
