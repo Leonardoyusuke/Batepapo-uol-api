@@ -34,6 +34,7 @@ function removeInative(){
 try {
     await mongoClient.connect()
     db = mongoClient.db()
+    console.log("conectando mongo")
   } catch (error) {
     console.log(error)
   }
