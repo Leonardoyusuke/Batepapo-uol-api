@@ -96,7 +96,7 @@ server.post("/messages", async (request, response) => {
       response.sendStatus(404)
     }
     else{
-      response.sendStatus(200)
+      response.sendStatus(201)
     }
 
     await db.collection("messages").insertOne({
