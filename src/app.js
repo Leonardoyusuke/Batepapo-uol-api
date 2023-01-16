@@ -9,7 +9,7 @@ import dayjs from 'dayjs';
 const server = express()
 server.use(express.json())
 server.use(cors())
-const PORT = 5001
+const PORT = 5000
 
 dotenv.config()
 
