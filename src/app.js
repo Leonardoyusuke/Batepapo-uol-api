@@ -89,11 +89,14 @@ server.post("/messages", async (request, response) => {
   const validation = messageSchema.validate(request.body,{abortEarly:true})
   if (validation.error){
     response.sendStatus(422)
-}
+  }
   try {
     const validateUser = await db.collection("participants").findOne({name:user})
     if(!validateUser){
-      response.sendStatus(422)
+      response.sendStatus(404)
+    }
+    else{
+      response.sendStatus(200)
     }
 
     await db.collection("messages").insertOne({
