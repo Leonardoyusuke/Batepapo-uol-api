@@ -26,7 +26,7 @@ const messageSchema = joi.object({
   type: joi.string().valid("message").valid("private_message")
 })
 
-setInterval(removeInative,15000)
+setTimeout(removeInative,15000)
 async function removeInative(){
 const users = await db.collection("participants").find().toArray()
  users.forEach((u) => {
