@@ -26,6 +26,11 @@ const messageSchema = joi.object({
   type: joi.string().valid("message").valid("private_message")
 })
 
+setInterval(removeInative,15000)
+function removeInative(){
+ // if(lastStatus)
+}
+
 try {
     await mongoClient.connect()
     db = mongoClient.db()
