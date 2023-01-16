@@ -60,7 +60,7 @@ server.post("/participants", async (request, response) => {
     await db.collection("messages").insertOne({
       from:participant.name,
       to: "todos",
-      text: "entrou na sala...",
+      text: "entra na sala...",
       type: "status",
       time: dayjs(Date.now()).format("HH:mm:ss")
     })
@@ -117,11 +117,15 @@ server.get("/messages", async (request, response) => {
   
   try {
     const messages = await db.collection("messages").find({ $or:[{from: user },{to: user},{to:"todos"},{type:"status"},{type:"message"}]}).toArray()
+    const reverseMsg = messages.reverse()
     if(!limit){
-      response.send(messages)
+      response.send(reverseMsg)
       }
+    else if(limite <= 0){
+      response.sendStatus(422)
+    }
     else{
-      const msg = messages.slice(-limit)
+      const msg = reverseMsg.slice(-limit)
       response.send(msg)
     }
   } catch (error) {
