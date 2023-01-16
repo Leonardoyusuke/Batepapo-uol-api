@@ -27,8 +27,20 @@ const messageSchema = joi.object({
 })
 
 setInterval(removeInative,15000)
-function removeInative(){
- // if(lastStatus)
+async function removeInative(){
+const users = await db.collection("participants").find().toArray()
+ users.forEach((u) => {
+  if((date.now()-u.lastStatus) >= 10000 ){
+    db.collection("participants").deleteOne({name:u.name})
+    db.collection("messages").insertOne({
+      from:u.name,
+      to:"todos",
+      text:"sai da sala...",
+      type:"status",
+      time: dayjs().format("HH:mm:ss")
+    })
+  }
+ })
 }
 
 try {
