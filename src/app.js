@@ -121,7 +121,7 @@ server.get("/messages", async (request, response) => {
     if(!limit){
       response.send(reverseMsg)
       }
-    else if(limite <= 0){
+    else if(limit <= 0){
       response.sendStatus(422)
     }
     else{
