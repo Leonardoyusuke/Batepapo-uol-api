@@ -29,9 +29,11 @@ const messageSchema = joi.object({
 setTimeout(removeInative,15000)
 
 async function removeInative(){
+
 const users = await db.collection("participants").find().toArray()
  users.forEach((u) => {
-  if((Date.now()-u.lastStatus) > 10000 ){
+  const timeout = Date.now()-u.lastStatus
+  if(timeout > 10000 ){
     db.collection("participants").deleteOne({name:u.name})
     db.collection("messages").insertOne({
       from:u.name,
